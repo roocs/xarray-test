@@ -6,6 +6,7 @@ files = '/badc/cmip5/data/cmip5/output1/MOHC/HadGEM2-ES/historical/mon/atmos/Amo
 all_vars = '/badc/cmip5/data/cmip5/output1/MOHC/HadGEM2-ES/historical/mon/atmos/Amon/r1i1p1/latest/*/*.nc'
 all_vars_v = '/badc/cmip5/data/cmip5/output1/MOHC/HadGEM2-ES/historical/mon/atmos/Amon/r1i1p1/latest/v*/*.nc'
 
+
 def test_open_dataset():
     da = xr.open_dataset(fpath)
     return da
@@ -52,6 +53,7 @@ def test_open_multiple_variable_files():
     except MergeError as ex:
         pass
 
+
 # E                   xarray.core.merge.MergeError: conflicting values for variable 'time_bnds' on
 #                       objects to be combined:
 # E                   first value: <xarray.Variable (time: 1752, bnds: 2)>
@@ -65,7 +67,7 @@ def test_open_multiple_variable_files_2():
     print(ds)
     return ds
 
-    
+
 def test_subset_by_variable_incorrect():
     try:
         ds = xr.open_mfdataset(all_vars_v)
@@ -78,12 +80,36 @@ def test_subset_by_variable_incorrect():
 def test_return_variables_available():
     ds = xr.open_mfdataset(all_vars_v)
     variables = ds.data_vars
-    assert len(variables) == 5 # time, lat, lon, vas, va
+    assert len(variables) == 5  # time, lat, lon, vas, va
     return variables
 
 
 def test_subset_by_variable():
     ds = xr.open_mfdataset(all_vars_v)
     subset = ds[['vas']]
-    print(subset)
     return subset
+
+
+def test_avg_subset_along_time_incorrect():
+    try:
+        ds = xr.open_mfdataset(all_vars_v)
+        subset = ds[['vas']]
+        max = subset.max(dim='time')
+        assert max.shape == (144, 192)
+    except AttributeError as ex:
+        pass
+
+
+def test_avg_subset_along_time():
+    ds = xr.open_mfdataset(all_vars_v)
+    subset = ds[['vas']]
+    max = subset.vas.max(dim='time')
+    assert max.shape == (144, 192)
+
+
+def test_max_of_a_time_slice():
+    ds = xr.open_mfdataset(files)
+    time_slice = ds.sel(time=slice('1922-01-16', '1931-12-16'))
+    max = time_slice.tas.max(dim='time')
+    assert max.shape == (145, 192)
+
