@@ -25,6 +25,7 @@ def try_parametrisation(request):
 
 
 @pytest.fixture
-def create_netcdf_file():
-    test_file = Dataset("test_file.nc", format="NETCDF4")
+def create_netcdf_file(tmpdir):
+    tmpdir.mkdir("test_dir").join("test_file.nc")
+    test_file = Dataset("test_dir/test_file.nc", format="NETCDF4")
     return test_file
