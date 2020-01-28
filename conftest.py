@@ -28,4 +28,13 @@ def try_parametrisation(request):
 def create_netcdf_file(tmpdir):
     p = tmpdir.mkdir("test_dir").join("test_file.nc")
     test_file = Dataset(p, "w", format="NETCDF4")
+    test_file.createDimension("lat", 73)
+    test_file.createVariable("lat", "f4", ("lat",))
     return test_file
+
+
+# use variables as parameters
+@pytest.fixture(scope="module", params=["vas", "va"])
+def try_parametrisation_vars(request):
+    var = request.param
+    return var

@@ -227,3 +227,21 @@ def test_regridding_patch():
     regridder.clean_weight_file()
     ax.coastlines()
     plt.show()
+
+
+def test_avg_all_vars_time_slice():
+    ds = xr.open_mfdataset(all_vars_v)
+    time_slice = ds.sel(time=slice("1922-01-16", "1931-12-16"))
+    for var in ["vas", "va"]:
+        maximum = time_slice[var].max(dim="time")
+        # assert maximum.shape == (144, 192) variables are different shapes
+        return maximum
+
+
+def test_vars_as_params(try_parametrisation_vars):
+    ds = xr.open_mfdataset(all_vars_v)
+    time_slice = ds.sel(time=slice("1922-01-16", "1931-12-16"))
+    var = try_parametrisation_vars
+    maximum = time_slice[var].max(dim="time")
+    # assert maximum.shape == (144, 192) variables are different shapes
+    return maximum
