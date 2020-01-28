@@ -28,8 +28,10 @@ def try_parametrisation(request):
 def create_netcdf_file(tmpdir):
     p = tmpdir.mkdir("test_dir").join("test_file.nc")
     test_file = Dataset(p, "w", format="NETCDF4")
-    test_file.createDimension("lat", 73)
+    test_file.createDimension("lat", 144)
     test_file.createVariable("lat", "f4", ("lat",))
+    test_file.createDimension("lon", 192)
+    test_file.createVariable("lon", "f4", ("lon",))
     return test_file
 
 

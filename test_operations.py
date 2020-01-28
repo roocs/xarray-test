@@ -3,6 +3,8 @@ import numpy as np
 import xesmf as xe
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
+import cftime
+import pytest
 
 fpath = (
     "/badc/cmip5/data/cmip5/output1/MOHC/HadGEM2-ES/historical/mon/atmos/Amon/r1i1p1/latest"
@@ -191,7 +193,7 @@ def test_regridding_conservative():
         ds = xr.open_dataset(
             "/badc/cmip5/data/cmip5/output1/MOHC/HadGEM2-ES/historical/mon/atmos/Amon/r1i1p1/latest/tas/tas_Amon_HadGEM2-ES_historical_r1i1p1_198412-200511.nc"
         )
-        # regrid from 1.25x1.875 to 2.5x3,75
+        # regrid from 1.25x1.875 to 2.5x3.75
         ds_out = xr.Dataset(
             {
                 "lat": (["lat"], np.arange(-89.375, 89.375, 2.5)),
@@ -213,7 +215,7 @@ def test_regridding_patch():
     ds = xr.open_dataset(
         "/badc/cmip5/data/cmip5/output1/MOHC/HadGEM2-ES/historical/mon/atmos/Amon/r1i1p1/latest/tas/tas_Amon_HadGEM2-ES_historical_r1i1p1_198412-200511.nc"
     )
-    # regrid from 1.25x1.875 to 2.5x3,75
+    # regrid from 1.25x1.875 to 2.5x3.75
     ds_out = xr.Dataset(
         {
             "lat": (["lat"], np.arange(-89.375, 89.375, 2.5)),
@@ -245,3 +247,22 @@ def test_vars_as_params(try_parametrisation_vars):
     maximum = time_slice[var].max(dim="time")
     # assert maximum.shape == (144, 192) variables are different shapes
     return maximum
+
+
+def test_sel_multi_level_file(tmpdir):
+    ds = xr.open_mfdataset(
+        "/badc/cmip5/data/cmip5/output1/MOHC/HadGEM2-ES/rcp45/mon/atmos/Amon/r1i1p1/latest/ta/ta_Amon_HadGEM2-ES_rcp45_r1i1p1_209912-212411.nc"
+    )
+    subset = ds.ta.sel(
+        time=slice("2100-12-16", "2120-12-16"),
+        plev=slice(85000, 3000),
+        lat=slice(50, 59),
+        lon=slice(2, 352),
+    )
+    assert (2 <= subset["lon"].data).all() & (subset["lon"].data <= 352).all()
+    assert (50 <= subset["lat"].data).all() & (subset["lat"].data <= 59).all()
+    assert (3000 <= subset["plev"].data).all() & (subset["plev"].data <= 85000).all()
+    assert (cftime.Datetime360Day(2100, 12, 16) <= subset["time"].data).all() & (
+        subset["time"].data <= cftime.Datetime360Day(2120, 12, 16)
+    ).all()
+    subset.to_netcdf(path=tmpdir.mkdir("test_dir").join("example_dataset.nc"))
