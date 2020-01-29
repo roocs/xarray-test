@@ -210,6 +210,11 @@ def test_regridding_conservative():
     except KeyError as err:
         pass  # need grid corner info
 
+    # In some regridding cases, might need to get the areacello or areacella variable to
+    # get the full description of the grid cells required for accurate regridding.
+    # e.g. /badc/cmip5/data/cmip5/output1/MOHC/HadGEM2-ES/rcp45/fx/atmos/fx/r0i0p0/latest/areacella
+    # /areacella_fx_HadGEM2-ES_rcp45_r0i0p0.nc
+
 
 def test_regridding_patch():
     ds = xr.open_dataset(
