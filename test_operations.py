@@ -80,7 +80,6 @@ def test_subset_by_other_method():
 
 def test_open_multiple_variable_files_2():
     ds = xr.open_mfdataset(all_vars_v)
-    print(ds)
     return ds
 
 

@@ -28,5 +28,4 @@ def test_parametrisation(try_parametrisation):
 
 def test_open_dataset(create_netcdf_file):
     da = create_netcdf_file
-    print(da)
     return da
